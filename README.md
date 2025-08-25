@@ -1,4 +1,4 @@
-# spatial-wearables-lab
+# spatial-wearables-labs
 
 # Week {N} ({YYYY-MM-DD} – {YYYY-MM-DD})
 
