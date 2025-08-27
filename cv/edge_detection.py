@@ -24,9 +24,6 @@ def grayscale_image(image_matrix: torch.Tensor):
 
     mono_weights = torch.Tensor([0.299, 0.587, 0.114])
     grayscaled_image = (image_matrix * mono_weights).sum(dim=-1)
-    # Write to file
-    Image.fromarray(grayscaled_image.numpy().astype(np.uint8)).save("cv/images/three_blocks_grayscale.png")
-
     return grayscaled_image
             
 
@@ -132,19 +129,15 @@ if __name__ == "__main__":
     image_matrix = load_image_matrix(args.image_path)
     image_matrix = torch.Tensor(image_matrix)
 
-    denoised_og_image = _denoise_image(grayscale_image(image_matrix))
+    grayscaled = grayscale_image(image_matrix)
 
-    denoised_og_image_save = Image.fromarray(denoised_og_image.numpy().astype(np.uint8))
-    denoised_og_image_save.save("cv/images/three_blocks_denoised.png")
+    denoised_grayscale = _denoise_image(grayscaled)
 
-    gradient_strengths, gradient_directions = compute_gradient_image(image_matrix, args.use_torch_conv2d)
-    denoised_gradient_image = _denoise_image(gradient_strengths)
+    gradient_strengths, gradient_directions = compute_gradient_image(denoised_grayscale, args.use_torch_conv2d)
     
     # Save denoised gradient image
-    denoised_gradient_image_save = Image.fromarray(denoised_gradient_image.numpy().astype(np.uint8))
-    denoised_gradient_image_save.save("cv/images/three_blocks_gradient_magnitude_denoised.png")
+    edges = mark_edges(gradient_strengths, args.threshold)
 
-    edges = mark_edges(denoised_gradient_image, args.threshold)
     # Convert to PIL image and save
     edges_image = Image.fromarray((edges.numpy() * 255).astype(np.uint8))
     edges_image.save("cv/images/three_blocks_edges.png")
